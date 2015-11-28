@@ -25,7 +25,7 @@ init:	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	j init #go to init, because $t0 is smaller than $t9
 counterreset:	li	$t0, 1		# reset counter variable to 1
 
-outer:	addi	$t0, $t0, 1	#add 1 to increment counter.
+outer:	addi	$t0, $t0, 2	#add 2 to increment counter. Only odd numbers (other than 2) need to be checked
 	sll	$t1, $t0, 1	# multiply $t0 by 2 and save to $t1 by logically left shifting by 1.
 	bgt	$t1, $t9, print	# start printing prime numbers when $t1 > $t9
 
