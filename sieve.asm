@@ -11,7 +11,8 @@ main:	li	$s0, 0x00000000	# initialize $s0 with zeros
 
 	addi	$s2, $sp, 0	# backup bottom of stack address in $s2
 
-	li	$t0, 2		# set counter variable to 2
+	li	$t0, 2
+			# set counter variable to 2
 
 init:	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	addi	$t0, $t0, 1	# increment counter variable
@@ -25,9 +26,9 @@ init:	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	j init #go to init, because $t0 is smaller than $t9
 counterreset:	li	$t0, 1		# reset counter variable to 1
 
-outer:	addi	$t0, $t0, 1	#add 1 to increment counter.
+outer:	addi	$t0, $t0, 2	#add 2 to increment counter. Only odd numbers (other than 2) need to be checked
 	sll	$t1, $t0, 1	# multiply $t0 by 2 and save to $t1 by logically left shifting by 1.
-	bgt	$t1, $t9, print	# start printing prime numbers when $t1 > $t9
+	bgt	$t1, $t9, print2	# start printing prime numbers when $t1 > $t9
 
 check:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sll	$t3, $t0, 2	# calculate the number of bytes to jump over
@@ -43,17 +44,49 @@ inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
 	add	$t1, $t1, $t0	# do this for every multiple of $t0
-	
+	sw	$s0, ($t2)	# store 0's -> it's not a prime number!
 	
 	
 	bgt	$t1, $t9, outer	# every multiple done? go back to outer loop
-	sw	$s0, ($t2)	# store 0's -> it's not a prime number! //moved below the bgt.
 	j	inner		# some multiples left? go back to inner loop
 
-print:	li	$t0, 1		# reset counter variable to 1
+print2:	li	$t0, 1		# reset counter variable to 1
+	addi 	$t4, $0, 2	#this is for the bgt in count1.
+	#print2 is added, because if you have outer incrementing by 2 you can have count increment by 2 as well, and it will print primes save for 2, so this increments it by 1 to print 2,
+	#then resets the counter to 1 and increments by 2.
+count1:	addi	$t0, $t0, 1	#increments $t0 by 1(start at 2)
+				
+	bgt	$t0, $t4, printrest	# make sure to exit when all numbers are done
 
-count:	addi	$t0, $t0, 1	#increments $t0 by 1(start at 2)
+	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
+	sll	$t3, $t0, 2	# calculate the number of bytes to jump over by 4 multiplying using sll
+	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
+	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
 
+	lw	$t3, ($t2)	# load the content into $t3
+	beq	$t3, $s0, count1	# only 0's? go back to count loop
+
+	addi	$t3, $s2, 0	# save the bottom of stack address to $t3
+
+	sub	$t3, $t3, $t2	# substract higher from lower address (= bytes)
+	srl	$t3, $t3, 2	#divides by 4 using a right logical shift.
+	addi	$t3, $t3, 2	# add 2 (words) = the final prime number!
+
+	li	$v0, 1		# system code to print integer
+	addi	$a0, $t3, 0	# the argument will be our prime number in $t3
+	syscall			# print it!
+	la	$a0, space	# the argument will be a whitespace
+	li	$v0, 4		# system code to print string
+	
+	syscall			# print it!
+
+	ble	$t0, $t4, count1	# take loop while $t0 <= $t9
+
+
+
+printrest:	li	$t0, 1		# reset counter variable to 1
+count:	addi	$t0, $t0, 2	#increments $t0 by 2(start at 2)
+				#you increment this by 2 because above(in outer) you increment the counter by 2, and it makes going by 1 unnecessary.
 	bgt	$t0, $t9, exit	# make sure to exit when all numbers are done
 
 	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
@@ -82,3 +115,4 @@ count:	addi	$t0, $t0, 1	#increments $t0 by 1(start at 2)
 
 exit:	li	$v0,10		# set up system call 10 (exit)
 	syscall	
+
