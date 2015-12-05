@@ -44,10 +44,9 @@ inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
 	add	$t1, $t1, $t0	# do this for every multiple of $t0
-	sw	$s0, ($t2)	# store 0's -> it's not a prime number!
-	
 	
 	bgt	$t1, $t9, outer	# every multiple done? go back to outer loop
+	sw	$s0, ($t2)	# store 0's -> it's not a prime number! /moved below the bgt
 	j	inner		# some multiples left? go back to inner loop
 
 print2:	li	$t0, 1		# reset counter variable to 1
@@ -64,7 +63,7 @@ count1:	addi	$t0, $t0, 1	#increments $t0 by 1(start at 2)
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
 
 	lw	$t3, ($t2)	# load the content into $t3
-	beq	$t3, $s0, count1	# only 0's? go back to count loop
+	beq	$t3, $s0, count1	# only 0's? go back to count1 loop
 
 	addi	$t3, $s2, 0	# save the bottom of stack address to $t3
 
@@ -115,4 +114,3 @@ count:	addi	$t0, $t0, 2	#increments $t0 by 2(start at 2)
 
 exit:	li	$v0,10		# set up system call 10 (exit)
 	syscall	
-
