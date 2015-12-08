@@ -42,15 +42,16 @@ inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sll	$t3, $t1, 2	# calculate the number of bytes to jump over
 	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
+	
 	addi	$t4, $t0, -1	#set $t4 to the last multiple we were removing, this is so that we don't remove repeat multiples like 15 and such
 	div	$t1, $t4	#you need divide here so you can use mfhi to find if the multiple has already been stored
-	mfhi	$t4		#put the remaineder of div $t1,$t0 into $t
 	
 	add	$t1, $t1, $t0	# do this for every multiple of $t0
-	
 	bgt	$t1, $t9, outer	# every multiple done? go back to outer loop
-	beq 	$t4, $0, inner			#when $t4 is 0 then we know that $t1 was divisible by $t0-1($t4 before it gets the remainder put in)
+	mfhi	$t4		#put the remaineder of div $t1,$t0 into $t, this can be below the bgt because it will save it from running a couple times.
+	beq 	$t4, $0, inner	#when $t4 is 0 then we know that $t1 was divisible by $t0-1($t4 before it gets the remainder put in)
 	sw	$s0, ($t2)	# store 0's -> it's not a prime number! /moved below the bgt
+	#sw causes a lot of misses.
 	j	inner		# some multiples left? go back to inner loop
 
 print2:	li	$t0, 2		# reset counter variable to 2, since that's what you're printing right below.
@@ -79,10 +80,10 @@ count1:	#addi	$t0, $t0, 1	#increments $t0 by 1(start at 2) (you don't need this 
 	
 	syscall			# print it!
 	#ble	$t0, $t4, count1	# take loop while $t0 <= $t4
-#some of the things in count1 aren't needed do to the fact that it only prints one number, so I removed the unneeded things.
-
+	#some of the things in count1 aren't needed do to the fact that it only prints one number, so I removed the unneeded things.
 
 printrest:	li	$t0, 1		# reset counter variable to 1
+
 count:	addi	$t0, $t0, 2	#increments $t0 by 2(start at 2)
 				#you increment this by 2 because above(in outer) you increment the counter by 2, and it makes going by 1 unnecessary.
 	bgt	$t0, $t9, exit	# make sure to exit when all numbers are done
