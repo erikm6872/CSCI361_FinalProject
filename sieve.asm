@@ -1,4 +1,6 @@
 # Code adapted from http://www.marcell-dietl.de/downloads/eratosthenes.s
+
+#Optimized by Matthew Hanson and Erik McLaughlin
 	
 	.data			# the data segment to store global data
 space:	.asciiz	" "		# whitespace to separate prime numbers
@@ -75,7 +77,9 @@ inner:
 	#	problem, but this is the most efficient one we could
 	#	find that doesn't cause the algorithm to break.
 	#
+	
 	sw	$s0, ($t2)	# store 0's -> it's not a prime number! /moved below the bgt
+	
 	#
 	###############################################################
 	
