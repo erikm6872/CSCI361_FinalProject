@@ -23,7 +23,7 @@ init:	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	addi	$t0, $t0, 1	# increment counter variable
 	addi	$sp, $sp, -4	# subtract 4 bytes from stackpointer (push)
-	
+	#unrolled some of init, to make it run quicker.
 	#ble	$t0, $t9, init	# take loop while $t0 <= $t9
 	#li $t0, 1   #reset counter variable to 1 (this was moved to counter reset)
 	beq	$t0, $t9, counterreset	# take loop while $t0 != $t9, which essentially means when $t0 < $t9 since $t0 is initialized to a lower value.
