@@ -1,0 +1,6 @@
+Erik McLaughlin
+Matthew Hanson
+CSCI 361 Final Project
+
+
+The `sw` instruction on line 78 appears to be what's causing our problem. From what we can tell, the issue is that when we try to update the stack values it won't let us update the value in the corresponding cache block because it already has been assigned a value (0x11111111). That causes several `miss due to full set` cache misses almost every time the `inner` loop runs. We've tried every solution we can think of to resolve this problem, but this is the most efficient one we could find that doesn't cause the algorithm to break.
