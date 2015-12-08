@@ -39,12 +39,14 @@ check:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sll	$t3, $t0, 2	# calculate the number of bytes to jump over by multiplying by 4 using sll
 	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
-
 	lw	$t3, ($t2)	# load the content into $t3
 	
 	beq	$t3, $s0, outer	# only 0's? go back to the outer loop
 
-inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
+inner:	
+
+
+	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	sll	$t3, $t1, 2	# calculate the number of bytes to jump over
 	sub	$t2, $t2, $t3	# subtract them from bottom of stack address
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
@@ -52,12 +54,33 @@ inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	addi	$t4, $t0, -1	#set $t4 to the last multiple we were removing, this is so that we don't remove repeat multiples like 15 and such
 	div	$t1, $t4	#you need divide here so you can use mfhi to find if the multiple has already been stored
 	
+	
 	add	$t1, $t1, $t0	# do this for every multiple of $t0
 	bgt	$t1, $t9, outer	# every multiple done? go back to outer loop
 	mfhi	$t4		#put the remaineder of div $t1,$t0 into $t, this can be below the bgt because it will save it from running a couple times.
 	beq 	$t4, $0, inner	#when $t4 is 0 then we know that $t1 was divisible by $t0-1($t4 before it gets the remainder put in)
+	
+	
+	
+	
+	###############################################################
+	#	This `sw` instruction is what's causing our problem.
+	#	From what we can tell, the issue is that when we try
+	#	to update the stack values it won't let us update
+	#	the value in the corresponding cache block because 
+	#	it already has been assigned a value (0x11111111).
+	#	That causes several `miss due to full set` cache misses
+	#	almost every time the `inner` loop runs. We've tried 
+	#	every solution we can think of to resolve this 
+	#	problem, but this is the most efficient one we could
+	#	find that doesn't cause the algorithm to break.
+	#
 	sw	$s0, ($t2)	# store 0's -> it's not a prime number! /moved below the bgt
-	#sw causes a lot of misses.
+	#
+	###############################################################
+	
+	
+	
 	j	inner		# some multiples left? go back to inner loop
 
 print2:	li	$t0, 2		# reset counter variable to 2, since that's what you're printing right below.
