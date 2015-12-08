@@ -17,6 +17,12 @@ init:	sw	$s1, ($sp)	# write ones to the stackpointer's address
 	addi	$t0, $t0, 1	# increment counter variable
 	addi	$sp, $sp, -4	# subtract 4 bytes from stackpointer (push)
 	#all of the adds with numbers I changed to addi and the only sub with a number  I changed to an addi with a negative number.
+	sw	$s1, ($sp)	# write ones to the stackpointer's address
+	addi	$t0, $t0, 1	# increment counter variable
+	addi	$sp, $sp, -4	# subtract 4 bytes from stackpointer (push)
+	sw	$s1, ($sp)	# write ones to the stackpointer's address
+	addi	$t0, $t0, 1	# increment counter variable
+	addi	$sp, $sp, -4	# subtract 4 bytes from stackpointer (push)
 	
 	#ble	$t0, $t9, init	# take loop while $t0 <= $t9
 	#li $t0, 1   #reset counter variable to 1 (this was moved to counter reset)
@@ -35,7 +41,7 @@ check:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
 	addi	$t2, $t2, 8	# add 2 words - we started counting at 2!
 
 	lw	$t3, ($t2)	# load the content into $t3
-
+	
 	beq	$t3, $s0, outer	# only 0's? go back to the outer loop
 
 inner:	addi	$t2, $s2, 0	# save the bottom of stack address to $t2
